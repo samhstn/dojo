@@ -17,6 +17,9 @@ Python 3.8.5
 # jump in to this directory
 cd python
 
+# create a venv directory if it doesn't exist
+python3 -m venv venv
+
 # activate the virtual environment
 source venv/bin/activate
 
