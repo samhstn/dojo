@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.33.0.
+-- This file has been generated from package.yaml by hpack version 0.34.2.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: eaa6205e62bdc4bb074fbfd93598c7fcdfbbcb686ea30c3f56a142c2d2bd4632
+-- hash: 7d4455a06696f9c9071df60e8ae1f2b70ee841748146233c24318ac805eff6de
 
 name:           dojo
 version:        0.0.0
@@ -21,6 +21,7 @@ library
       QuickCheck
     , base >=4.7 && <5
     , hspec
+    , split
   default-language: Haskell2010
 
 test-suite dojo-test
@@ -36,4 +37,5 @@ test-suite dojo-test
     , base >=4.7 && <5
     , dojo
     , hspec
+    , split
   default-language: Haskell2010
