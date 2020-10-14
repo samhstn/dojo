@@ -2,7 +2,7 @@
 
 ### Requirements
 
-[Node](https://formulae.brew.sh/formula/python@3.8).
+[Python 3](https://formulae.brew.sh/formula/python@3.8).
 
 Check we have it installed with:
 
@@ -27,10 +27,10 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # run the tests
-python index.py
+pytest index.py
 
 # watch the tests:
-watchmedo shell-command --patterns='*.py' --command='python index.py' .
+watchmedo shell-command --patterns='*.py' --command='pytest index.py' .
 
 # when finished, we deactivate our virtual environment
 deactivate
