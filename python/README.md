@@ -27,10 +27,10 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # run the tests
-pytest index.py
+pytest index_test.py
 
 # watch the tests:
-watchmedo shell-command --patterns='*.py' --command='pytest index.py' .
+watchmedo shell-command --patterns='*.py' --command='pytest index_test.py'
 
 # when finished, we deactivate our virtual environment
 deactivate
