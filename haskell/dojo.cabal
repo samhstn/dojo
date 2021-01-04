@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.2.
+-- This file has been generated from package.yaml by hpack version 0.34.3.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7d4455a06696f9c9071df60e8ae1f2b70ee841748146233c24318ac805eff6de
+-- hash: 888bce1d628d8689fed27c39f831962f8dd55373d1c7f9a174e8e7bd7efc365c
 
 name:           dojo
 version:        0.0.0
@@ -16,7 +16,7 @@ library
   other-modules:
       Paths_dojo
   hs-source-dirs:
-      ./.
+      ./
   build-depends:
       QuickCheck
     , base >=4.7 && <5
@@ -30,7 +30,7 @@ test-suite dojo-test
   other-modules:
       Paths_dojo
   hs-source-dirs:
-      ./.
+      ./
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       QuickCheck
