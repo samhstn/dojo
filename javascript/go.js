@@ -1,29 +1,45 @@
 // https://www.codewars.com/kata/59de9f8ff703c4891900005c
 
-const test = require('tape')
-
-const alphabet = 'ABCDEFGHJKLMNOPQRSTUVWXYZ'
-
 class Go {
-  constructor(size) {
-    if (size > 25) {
+  constructor(height, width) {
+    this.height = height
+    this.width = width || height
+    if (this.height > 25 || this.width > 25) {
       throw 'Board cannot be larger than 25 by 25.'
     }
-    this.alphabet = alphabet.slice(0, size)
-    this.size = size
+    this.alphabet = 'ABCDEFGHJKLMNOPQRSTUVWXYZ'.slice(0, this.width)
+    this.history = []
     this.prevBoard = []
-    this.board = '.'.repeat(size).split('').map(_ => '.'.repeat(size).split(''))
+    this.board = []
+    this.reset()
     this.blackToMove = true
   }
 
-  log() {
-    const size = this.size
-    const top = this.alphabet.split('')
-    console.log(
-      [top].concat(this.board)
-           .map((row, i) => `${i === 0 ? ' ' : size - i + 1} ${row.join(' ')}`)
-           .join('\n')
-    )
+  get size() {
+    return {height: this.height, width: this.width}
+  }
+
+  get turn() {
+    return this.blackToMove ? 'black' : 'white'
+  }
+
+  pass() {
+    this.history.push(null)
+    this.blackToMove = !this.blackToMove
+  }
+
+  reset() {
+    this.board =
+      '.'.repeat(this.height)
+         .split('')
+         .map(_ => '.'.repeat(this.width).split(''))
+    this.blackToMove = true
+  }
+
+  rollback(n) {
+    this.reset()
+    this.history = this.history.slice(0, -n)
+    this.move(...this.history)
   }
 
   parseCoord(coord) {
@@ -32,14 +48,13 @@ class Go {
 
   neighbours(coord) {
     const [n, c] = this.parseCoord(coord)
-    const size = this.size
     return [
       [n + 1, c],
       [n, this.alphabet[this.alphabet.indexOf(c) + 1]],
       [n - 1, c],
       [n, this.alphabet[this.alphabet.indexOf(c) - 1]]
     ].reduce((a, [newN, newC]) => {
-      return newN > 0 && newN <= size && newC
+      return newN > 0 && newN <= this.height && newC
         ? a.concat(`${newN}${newC}`)
         : a
     }, [])
@@ -47,7 +62,7 @@ class Go {
 
   getPosition(coord) {
     const [n, c] = this.parseCoord(coord)
-    return this.board[this.size - n][alphabet.indexOf(c)]
+    return this.board[this.height - n][this.alphabet.indexOf(c)]
   }
 
   hasLiberties(coord, colour) {
@@ -81,7 +96,7 @@ class Go {
     const [n, c] = this.parseCoord(coord)
     const position = this.getPosition(coord)
     if (position !== '.') {
-      this.board[this.size - n][alphabet.indexOf(c)] = '.'
+      this.board[this.height - n][this.alphabet.indexOf(c)] = '.'
       this.neighbours(coord)
         .filter(c => this.getPosition(c) === position)
         .forEach(c => this.capture(c))
@@ -90,13 +105,18 @@ class Go {
 
   move(...coords) {
     for (const coord of coords) {
+      if (coord === null) {
+        this.history.push(coord)
+        this.blackToMove = !this.blackToMove
+        continue
+      }
       const boardCopy = this.board.map(row => row.slice())
       const [n, c] = this.parseCoord(coord)
       if (this.getPosition(coord) !== '.') {
         throw 'not placeable'
       }
       const [moving, notMoving] = this.blackToMove ? ['x', 'o'] : ['o', 'x']
-      this.board[this.size - n][alphabet.indexOf(c)] = moving
+      this.board[this.height - n][this.alphabet.indexOf(c)] = moving
 
       this.neighbours(coord)
         .filter(c => this.getPosition(c) === notMoving)
@@ -116,45 +136,49 @@ class Go {
         throw 'KO illegal move'
       }
 
+      this.history.push(coord)
+
       this.prevBoard = boardCopy.map(row => row.join('')).join('\n')
       this.blackToMove = !this.blackToMove
     }
   }
 
   handicapStones(handicapN) {
-    if (this.board.some(row => row.some(c => c !== '.'))) {
-      throw 'game shouldn\'t have started'
+    if (this.board.some(row => row.some(c => c !== '.')) || this.history.length > 0) {
+      throw new Error('Handicap stones cannot be initialized after moves have been made')
     }
 
-    if (this.size === 9) {
+    if (this.height === 9 && this.width === 9) {
       if (handicapN < 1 || handicapN > 5) {
         throw 'invalid number for handicap stones'
       }
       ['7G', '3C', '3G', '7C', '5E'].slice(0, handicapN).forEach(coord => {
         const [n, c] = this.parseCoord(coord)
-        this.board[this.size - n][alphabet.indexOf(c)] = 'x'
+        this.board[this.height - n][this.alphabet.indexOf(c)] = 'x'
       })
-    } else if (this.size === 13) {
+    } else if (this.height === 13 && this.width === 13) {
       if (handicapN < 1 || handicapN > 9) {
         throw 'invalid number for handicap stones'
       }
-      ['10K', '4D', '4K', '10D', '7G', '7D', '7K', '7G', '4G'].slice(0, handicapN).forEach(coord => {
+      ['10K', '4D', '4K', '10D', '7G', '7D', '7K', '10G', '4G'].slice(0, handicapN).forEach(coord => {
         const [n, c] = this.parseCoord(coord)
-        this.board[this.size - n][alphabet.indexOf(c)] = 'x'
+        this.board[this.height - n][this.alphabet.indexOf(c)] = 'x'
       })
-    } else if (this.size === 19) {
+    } else if (this.height === 19 && this.width === 19) {
       if (handicapN < 1 || handicapN > 9) {
         throw 'invalid number for handicap stones'
       }
       ['16Q', '4D', '4Q', '16D', '10K', '10D', '10Q', '16K', '4K'].slice(0, handicapN).forEach(coord => {
         const [n, c] = this.parseCoord(coord)
-        this.board[this.size - n][alphabet.indexOf(c)] = 'x'
+        this.board[this.height - n][this.alphabet.indexOf(c)] = 'x'
       })
     } else {
       throw 'invalid board size for handicap stones'
     }
   }
 }
+
+const test = require('tape')
 
 test("Creating go boards", t => {
   let board = [[".",".",".",".",".",".",".",".","."],
@@ -435,6 +459,38 @@ test('Handicap stones', t => {
                     
   game.handicapStones(3)
   t.deepEqual(game.board, finalBoard)
+  t.end()
+})
+
+test('board size', t => {
+  const game = new Go(9,16)
+  t.deepEqual(game.size, {height: 9, width: 16})
+  t.end()
+})
+
+test('colour of current turn', t => {
+  const game = new Go(9)
+  game.move("3B")
+  t.equal(game.turn, "white");
+  game.move("4B");
+  t.equal(game.turn, "black");
+  t.end()
+})
+
+test('rollback number of turns', t => {
+  const game = new Go(9);
+  const board = [[".",".",".",".",".",".",".",".","."],
+                 [".",".",".",".",".",".",".",".","."],
+                 [".",".",".",".",".",".",".",".","."],
+                 [".",".",".",".",".",".",".",".","."],
+                 [".",".",".",".",".",".",".",".","."],
+                 [".",".",".",".",".",".",".",".","."],
+                 [".",".",".",".",".",".",".",".","."],
+                 [".",".",".",".",".",".",".",".","."],
+                 [".",".",".",".",".",".",".",".","."]]
+  game.move("3B","2B","1B")
+  game.rollback(3)
+  t.deepEqual(game.board,board)
   t.end()
 })
 
