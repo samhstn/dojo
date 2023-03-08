@@ -1,8 +1,8 @@
 # Dojo
 
-A place for toying around with code in different languages.
+A place for toying with different languages.
 
-![dojo](https://aikimode.com/en/wp-content/uploads/2014/05/3209806-tmnt-1078x516.jpeg)
+![dojo](./dojo.jpg)
 
 To get started, have a look at the different environments we can work in:
 
